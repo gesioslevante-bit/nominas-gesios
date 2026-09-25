@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GESIOS · Nóminas</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <header class="cabecera">
+    <h1>GESIOS · Nóminas</h1>
+    <div id="zona-app" class="oculto">
+      <span id="nombre-usuario"></span>
+      <button onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Pantalla de login -->
+    <section id="zona-login" class="tarjeta-login">
+      <p>Accede con tu cuenta de GESIOS para gestionar las nóminas.</p>
+      <button onclick="iniciarSesion()">Iniciar sesión</button>
+    </section>
+
+    <!-- Panel principal (solo visible tras login) -->
+    <section id="zona-app" class="oculto">
+      <nav class="tabs">
+        <button class="tab-boton activo" data-tab="empleados">Empleados</button>
+        <button class="tab-boton" data-tab="incentivos">Incentivos del mes</button>
+        <button class="tab-boton" data-tab="parametros">Parámetros anuales</button>
+        <button class="tab-boton" data-tab="calculo">Calcular nóminas</button>
+      </nav>
+
+      <div id="tab-empleados" class="tab-contenido">
+        <h2>Empleados</h2>
+        <p class="nota">Aquí se listarán los empleados con sus datos salariales e IRPF (modelo 145).</p>
+        <div id="tabla-empleados">Cargando...</div>
+      </div>
+
+      <div id="tab-incentivos" class="tab-contenido oculto">
+        <h2>Incentivos del mes</h2>
+        <p class="nota">Introducción manual del incentivo mensual por empleado.</p>
+        <div id="formulario-incentivos">Próximamente</div>
+      </div>
+
+      <div id="tab-parametros" class="tab-contenido oculto">
+        <h2>Parámetros anuales</h2>
+        <p class="nota">Tablas de convenio, cotización IRPF vigentes. Editar solo al inicio de cada año.</p>
+        <div id="tabla-parametros">Próximamente</div>
+      </div>
+
+      <div id="tab-calculo" class="tab-contenido oculto">
+        <h2>Calcular nóminas</h2>
+        <p class="nota">Selecciona mes y genera el cálculo de devengos, cotizaciones e IRPF.</p>
+        <div id="panel-calculo">Próximamente</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Librería MSAL (misma versión que fichajes-gesios, ajústala si usáis otra) -->
+  <script src="https://alcdn.msauth.net/browser/3.18.0/js/msal-browser.min.js"></script>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
