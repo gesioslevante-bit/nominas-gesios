@@ -1,0 +1,90 @@
+* { box-sizing: border-box; }
+
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  margin: 0;
+  background: #f4f6f8;
+  color: #1f2937;
+}
+
+.cabecera {
+  background: #1e3a5f;
+  color: white;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cabecera h1 { font-size: 1.2rem; margin: 0; }
+
+.cabecera button {
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 0.75rem;
+}
+
+main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+
+.tarjeta-login {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 400px;
+  margin: 4rem auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tarjeta-login button {
+  background: #1e3a5f;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+}
+
+.tab-boton {
+  background: none;
+  border: none;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #6b7280;
+  border-bottom: 3px solid transparent;
+}
+
+.tab-boton.activo {
+  color: #1e3a5f;
+  border-bottom-color: #1e3a5f;
+  font-weight: 600;
+}
+
+.tab-contenido {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.nota { color: #6b7280; font-size: 0.9rem; }
+
+.oculto { display: none !important; }
+
+table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #e5e7eb; }
+th { color: #6b7280; font-weight: 600; font-size: 0.85rem; }
