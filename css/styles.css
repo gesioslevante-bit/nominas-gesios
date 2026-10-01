@@ -88,3 +88,61 @@ main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
 table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
 th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #e5e7eb; }
 th { color: #6b7280; font-weight: 600; font-size: 0.85rem; }
+
+.form-calculo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.form-calculo label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  color: #6b7280;
+  gap: 0.25rem;
+}
+
+.form-calculo input, .form-calculo select {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.form-calculo button {
+  background: #1e3a5f;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  height: fit-content;
+}
+
+.resultado-nomina {
+  border-top: 2px solid #1e3a5f;
+  padding-top: 1rem;
+}
+
+.resultado-nomina .fila-total {
+  font-weight: 700;
+  border-top: 2px solid #1e3a5f;
+}
+
+.resultado-nomina .liquido {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1e3a5f;
+  text-align: right;
+  margin-top: 1rem;
+}
+
+.error-calculo {
+  color: #b91c1c;
+  background: #fee2e2;
+  padding: 0.75rem;
+  border-radius: 4px;
+}
