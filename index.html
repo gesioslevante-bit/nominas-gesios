@@ -52,8 +52,35 @@
 
       <div id="tab-calculo" class="tab-contenido oculto">
         <h2>Calcular nóminas</h2>
-        <p class="nota">Selecciona mes y genera el cálculo de devengos, cotizaciones e IRPF.</p>
-        <div id="panel-calculo">Próximamente</div>
+        <p class="nota">Selecciona empleado, año y mes. Si tiene horas extra ese mes, indícalas.</p>
+
+        <div class="form-calculo">
+          <label>Empleado
+            <select id="select-empleado"></select>
+          </label>
+          <label>Año
+            <input type="number" id="input-año" value="2026" />
+          </label>
+          <label>Mes
+            <select id="select-mes">
+              <option value="1">Enero</option><option value="2">Febrero</option>
+              <option value="3">Marzo</option><option value="4">Abril</option>
+              <option value="5">Mayo</option><option value="6">Junio</option>
+              <option value="7">Julio</option><option value="8">Agosto</option>
+              <option value="9">Septiembre</option><option value="10">Octubre</option>
+              <option value="11">Noviembre</option><option value="12">Diciembre</option>
+            </select>
+          </label>
+          <label>Horas extra L-S
+            <input type="number" id="input-horas-ls" value="0" min="0" />
+          </label>
+          <label>Horas extra Dom-Fest
+            <input type="number" id="input-horas-fest" value="0" min="0" />
+          </label>
+          <button onclick="ejecutarCalculo()">Calcular</button>
+        </div>
+
+        <div id="resultado-calculo"></div>
       </div>
     </section>
   </main>
@@ -64,6 +91,8 @@
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/graph.js"></script>
+  <script src="js/parametros-fiscales.js"></script>
+  <script src="js/motor-calculo.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
