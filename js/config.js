@@ -22,7 +22,7 @@ const SHAREPOINT_SITE_ID = "gesiolevante.sharepoint.com";
 const LISTS = {
   parametrosAnuales: "ParametrosAnuales",
   datosIRPF: "DatosIRPF",
-  incentivosMensuales: "IncentivosMensuales",
+  tablaSalarialAnual: "TablaSalarialAnual",
   nominasCalculadas: "NominasCalculadas",
   empleados: "Empleados",
 };
