@@ -38,11 +38,31 @@ function obtenerSalarioBaseConvenio(categoria, año, tablaSalarial) {
         `Añádela a EQUIVALENCIAS_CATEGORIA en js/motor-calculo.js si el nombre no coincide.`
     );
   }
-  const valor = fila[String(año)];
+  const valor = obtenerValorAño(fila, año);
   if (valor === undefined || valor === null) {
     throw new Error(`No hay salario de convenio para "${categoriaConvenio}" en el año ${año}.`);
   }
   return Number(valor);
+}
+
+// SharePoint da a las columnas que empiezan por un número (como "2026")
+// un nombre interno codificado tipo "_x0032_0_x0032_6". Esta función
+// decodifica esa forma para comparar con el año que buscamos.
+function decodificarClaveSharePoint(clave) {
+  return clave.replace(/_x00([0-9a-fA-F]{2})_/g, (_, hex) =>
+    String.fromCharCode(parseInt(hex, 16))
+  );
+}
+
+// Busca en una fila el valor de la columna correspondiente a un año,
+// sea cual sea el nombre interno real que le haya puesto SharePoint.
+function obtenerValorAño(fila, año) {
+  const objetivo = String(año);
+  if (fila[objetivo] !== undefined) return fila[objetivo]; // caso simple, por si acaso
+  for (const clave in fila) {
+    if (decodificarClaveSharePoint(clave) === objetivo) return fila[clave];
+  }
+  return undefined;
 }
 
 function normalizar(texto) {
@@ -68,7 +88,7 @@ function obtenerParametroAnual(concepto, año, parametrosAnuales) {
     (f) => normalizar(f.Concepto ?? f.Title).includes(normalizar(concepto))
   );
   if (!fila) throw new Error(`No se encontró el concepto "${concepto}" en ParametrosAnuales.`);
-  const valor = fila[String(año)];
+  const valor = obtenerValorAño(fila, año);
   if (valor === undefined || valor === null) {
     throw new Error(`No hay valor para "${concepto}" en el año ${año}.`);
   }
