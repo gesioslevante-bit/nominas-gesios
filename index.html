@@ -17,13 +17,11 @@
   </header>
 
   <main>
-    <!-- Pantalla de login -->
     <section id="zona-login" class="tarjeta-login">
       <p>Accede con tu cuenta de GESIOS para gestionar las nóminas.</p>
       <button onclick="iniciarSesion()">Iniciar sesión</button>
     </section>
 
-    <!-- Panel principal (solo visible tras login) -->
     <section id="zona-app" class="oculto">
       <nav class="tabs">
         <button class="tab-boton activo" data-tab="empleados">Empleados</button>
@@ -85,7 +83,6 @@
     </section>
   </main>
 
-  <!-- Librería MSAL (misma versión que fichajes-gesios, ajústala si usáis otra) -->
   <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
 
   <script src="js/config.js"></script>
