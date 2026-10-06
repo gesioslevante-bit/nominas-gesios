@@ -97,26 +97,46 @@ function obtenerParametroAnual(concepto, año, parametrosAnuales) {
 
 // ---- 4. Devengos del mes ---------------------------------------
 
+// Jornada completa de referencia según el convenio de jardinería (40 h/semana).
+const HORAS_SEMANALES_JORNADA_COMPLETA = 40;
+
+function calcularFactorJornada(horasSemanalesEmpleado) {
+  if (!horasSemanalesEmpleado) return 1; // sin dato → se asume jornada completa
+  return horasSemanalesEmpleado / HORAS_SEMANALES_JORNADA_COMPLETA;
+}
+
 function calcularDevengos({
   categoria,
   año,
   salarioTotalPactado,
+  horasSemanales,
   tablaSalarial,
   parametrosAnuales,
   horasExtraLaborable = 0,
   horasExtraFestivo = 0,
 }) {
-  const salarioBaseConvenio = obtenerSalarioBaseConvenio(categoria, año, tablaSalarial);
+  const factorJornada = calcularFactorJornada(horasSemanales);
+
+  const salarioBaseConvenioCompleta = obtenerSalarioBaseConvenio(categoria, año, tablaSalarial);
+  const salarioBaseConvenio = round2(salarioBaseConvenioCompleta * factorJornada);
+
+  // El incentivo se calcula sobre el salario de convenio YA proporcional a la
+  // jornada, ya que el salario total pactado de un empleado a tiempo parcial
+  // también está pactado en esos términos.
   const incentivo = calcularIncentivo(salarioTotalPactado, salarioBaseConvenio);
 
-  const plusTransporte = obtenerParametroAnual("Plus transporte", año, parametrosAnuales);
-  const plusConservacion = obtenerParametroAnual("Plus conservacion", año, parametrosAnuales);
+  const plusTransporte = round2(
+    obtenerParametroAnual("Plus transporte", año, parametrosAnuales) * factorJornada
+  );
+  const plusConservacion = round2(
+    obtenerParametroAnual("Plus conservacion", año, parametrosAnuales) * factorJornada
+  );
   const precioHoraExtraLS = obtenerParametroAnual("Hora extra Lunes", año, parametrosAnuales);
   const precioHoraExtraFest = obtenerParametroAnual("Hora extra Domingo", año, parametrosAnuales);
 
   // Dos pagas extraordinarias (junio y diciembre), cada una de un mes de
-  // salario base de convenio, prorrateadas a lo largo de los 12 meses.
-  // GESIOS no aplica antigüedad, así que la paga extra = solo el salario base.
+  // salario base de convenio (ya proporcional a la jornada), prorrateadas
+  // a lo largo de los 12 meses. GESIOS no aplica antigüedad.
   const pagaExtraProrrateada = round2(salarioBaseConvenio / 6);
 
   const importeHorasExtra = round2(
@@ -130,6 +150,7 @@ function calcularDevengos({
   );
 
   return {
+    factorJornada,
     salarioBaseConvenio,
     incentivo,
     salario,
@@ -210,7 +231,17 @@ function calcularMinimoPersonalYFamiliar(datosIRPF, fiscal, añoNacimientoEmplea
     if (edadHijo < 3) minDes += fiscal.minimoDescendienteMenor3 * factor;
   });
 
-  return round2(minCon + minDes);
+  // Mínimo por discapacidad del propio contribuyente (art. 60 LIRPF):
+  // 3.000 € si el grado es ≥33% y <65%, 9.000 € si es ≥65%.
+  let minDiscapacidad = 0;
+  const discapacidad = normalizar(datosIRPF.DiscapacidadPropia);
+  if (discapacidad.includes("65")) {
+    minDiscapacidad = 9000;
+  } else if (discapacidad.includes("33")) {
+    minDiscapacidad = 3000;
+  }
+
+  return round2(minCon + minDes + minDiscapacidad);
 }
 
 /**
@@ -253,9 +284,24 @@ function calcularTipoRetencionIRPF(retribucionAnualEstimada, datosIRPF, añoNaci
   // los casos de plantilla sin cargas familiares atípicas)
   if (retribucionAnualEstimada <= 35200 && Number(datosIRPF.SituacionFamiliar) === 3) {
     const numDescendientes = [datosIRPF.Hijo1_Año, datosIRPF.Hijo2_Año, datosIRPF.Hijo3_Año, datosIRPF.Hijo4_Año].filter(Boolean).length;
-    const limiteExento = numDescendientes > 1 ? 16867 : numDescendientes === 1 ? 15617 : 14000; // orientativo, art. 81.1 RIRPF
+    // Tabla 1 (art. 81.1 RIRPF) para situación familiar 3, cifras oficiales 2026
+    const limiteExento = numDescendientes > 1 ? 16867 : numDescendientes === 1 ? 16342 : 15876;
     const limite = round2((retribucionAnualEstimada - limiteExento) * 0.43);
     if (cuotaRetencion > limite) cuotaRetencion = Math.max(0, limite);
+  }
+
+  // Si por debajo del límite excluyente de la Tabla 1 no hay obligación de
+  // retener en absoluto (independientemente del resultado de la fórmula).
+  {
+    const numDescendientes = [datosIRPF.Hijo1_Año, datosIRPF.Hijo2_Año, datosIRPF.Hijo3_Año, datosIRPF.Hijo4_Año].filter(Boolean).length;
+    const sit = Number(datosIRPF.SituacionFamiliar);
+    let limiteExcluyente = null;
+    if (sit === 3) limiteExcluyente = numDescendientes > 1 ? 16867 : numDescendientes === 1 ? 16342 : 15876;
+    if (sit === 2) limiteExcluyente = numDescendientes > 1 ? 19262 : numDescendientes === 1 ? 18130 : 17197;
+    if (sit === 1) limiteExcluyente = numDescendientes > 1 ? 18694 : 17644; // situación 1 exige al menos 1 hijo
+    if (limiteExcluyente !== null && retribucionAnualEstimada <= limiteExcluyente) {
+      cuotaRetencion = 0;
+    }
   }
 
   const tipo = retribucionAnualEstimada > 0
@@ -295,6 +341,7 @@ function calcularNominaCompleta({
     categoria: empleado.Categoria,
     año,
     salarioTotalPactado: empleado.SalarioTotalPactado,
+    horasSemanales: empleado.HorasSemanales,
     tablaSalarial,
     parametrosAnuales,
     horasExtraLaborable,
