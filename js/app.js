@@ -138,7 +138,7 @@ function pintarResultadoCalculo(nombreEmpleado, año, mes, r) {
 
       <div class="liquido">Líquido a percibir: ${fmt(r.liquidoAPercibir)}</div>
 
-      <p class="nota">Coste empresa este mes (cotizaciones a cargo de la empresa): ${fmt(r.cotizacionEmpresa.total)}</p>
+      <p class="nota">Coste empresa este mes (cotizaciones a cargo de la empresa${r.cotizacionEmpresa.bonificacion < 0 ? `, ya con la bonificación de ${fmt(-r.cotizacionEmpresa.bonificacion)} aplicada` : ""}): ${fmt(r.cotizacionEmpresa.total)}</p>
     </div>`;
 }
 

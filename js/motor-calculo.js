@@ -178,7 +178,7 @@ function calcularCotizacionTrabajador(baseCotizacion, año) {
   return detalle;
 }
 
-function calcularCotizacionEmpresa(baseCotizacion, año) {
+function calcularCotizacionEmpresa(baseCotizacion, año, bonificacionMensual = 0) {
   const p = obtenerParametrosFiscales(año).cotizacionEmpresa;
   const detalle = {
     contingenciasComunes: round2(baseCotizacion * (p.contingenciasComunes / 100)),
@@ -188,7 +188,12 @@ function calcularCotizacionEmpresa(baseCotizacion, año) {
     mei: round2(baseCotizacion * (p.mei / 100)),
     accidentesTrabajo: round2(baseCotizacion * (p.accidentesTrabajo / 100)),
   };
-  detalle.total = round2(Object.values(detalle).reduce((a, b) => a + b, 0));
+  const subtotal = round2(Object.values(detalle).reduce((a, b) => a + b, 0));
+  // Bonificaciones (p. ej. por contratación indefinida de persona con
+  // discapacidad) se restan de la cuota empresarial, nunca de la del
+  // trabajador. Nunca puede dejar el coste en negativo.
+  detalle.bonificacion = -Math.min(bonificacionMensual, subtotal);
+  detalle.total = round2(subtotal + detalle.bonificacion);
   return detalle;
 }
 
@@ -349,7 +354,11 @@ function calcularNominaCompleta({
   });
 
   const cotizacionTrabajador = calcularCotizacionTrabajador(devengos.totalDevengado, año);
-  const cotizacionEmpresa = calcularCotizacionEmpresa(devengos.totalDevengado, año);
+  const cotizacionEmpresa = calcularCotizacionEmpresa(
+    devengos.totalDevengado,
+    año,
+    Number(empleado.BonificacionSSMensual) || 0
+  );
 
   const retribAnual = retribucionAnualEstimada ?? round2(devengos.totalDevengado * 12);
 
