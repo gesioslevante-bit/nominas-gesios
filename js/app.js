@@ -89,6 +89,12 @@ async function ejecutarCalculo() {
 
     const datosIRPF = CACHE_DATOS_IRPF.find((d) => (d.Empleado ?? d.Title) === nombreEmpleado) || {};
 
+    // --- DIAGNÓSTICO TEMPORAL: quitar esta línea cuando esté resuelto ---
+    console.log("DATOS_IRPF_ENCONTRADOS:", JSON.stringify(datosIRPF));
+    contenedorResultado.innerHTML = `<pre style="background:#fef3c7;padding:1rem;white-space:pre-wrap;">DIAGNÓSTICO — datos IRPF encontrados para "${nombreEmpleado}":\n${JSON.stringify(datosIRPF, null, 2)}\n\nTotal de filas en DatosIRPF: ${CACHE_DATOS_IRPF.length}\nPrimera fila completa (para ver nombres de columna reales):\n${JSON.stringify(CACHE_DATOS_IRPF[0], null, 2)}</pre>`;
+    return;
+    // --- FIN DIAGNÓSTICO ---
+
     const resultado = calcularNominaCompleta({
       empleado,
       datosIRPF,
