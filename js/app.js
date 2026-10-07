@@ -6,6 +6,25 @@ document.querySelectorAll(".tab-boton").forEach((boton) => {
   boton.addEventListener("click", () => cambiarTab(boton.dataset.tab));
 });
 
+// La lista DatosIRPF se creó con "Desde Excel", y SharePoint no conservó
+// los nombres de columna reales: por debajo usa field_1, field_2... en el
+// mismo orden en que estaban las columnas en el Excel original. Esta
+// función traduce cada fila a nombres con sentido para el resto del código.
+function mapearFilaDatosIRPF(fila) {
+  return {
+    Empleado: fila.Title,
+    NIF: fila.field_1,
+    SituacionFamiliar: fila.field_2,
+    NIFConyuge: fila.field_3,
+    DiscapacidadPropia: fila.field_4,
+    Hijo1_Año: fila.field_5,
+    Hijo2_Año: fila.field_6,
+    Hijo3_Año: fila.field_7,
+    Hijo4_Año: fila.field_8,
+    PagosViviendaHabitual: fila.field_9,
+  };
+}
+
 // Cachés en memoria de las listas que usa el motor de cálculo,
 // para no volver a pedirlas a Graph cada vez que se pulsa "Calcular".
 let CACHE_EMPLEADOS = null;
@@ -80,20 +99,17 @@ async function ejecutarCalculo() {
     const horasFest = Number(document.getElementById("input-horas-fest").value) || 0;
 
     // Cargar (o reutilizar) las listas que hacen falta
-    if (!CACHE_DATOS_IRPF) CACHE_DATOS_IRPF = await leerListaCompleta(LISTS.datosIRPF);
+    if (!CACHE_DATOS_IRPF) {
+      const filasCrudas = await leerListaCompleta(LISTS.datosIRPF);
+      CACHE_DATOS_IRPF = filasCrudas.map(mapearFilaDatosIRPF);
+    }
     if (!CACHE_TABLA_SALARIAL) CACHE_TABLA_SALARIAL = await leerListaCompleta(LISTS.tablaSalarialAnual);
     if (!CACHE_PARAMETROS_ANUALES) CACHE_PARAMETROS_ANUALES = await leerListaCompleta(LISTS.parametrosAnuales);
 
     const empleado = CACHE_EMPLEADOS.find((e) => e.Title === nombreEmpleado);
     if (!empleado) throw new Error(`No se encontró el empleado "${nombreEmpleado}".`);
 
-    const datosIRPF = CACHE_DATOS_IRPF.find((d) => (d.Empleado ?? d.Title) === nombreEmpleado) || {};
-
-    // --- DIAGNÓSTICO TEMPORAL: quitar esta línea cuando esté resuelto ---
-    console.log("DATOS_IRPF_ENCONTRADOS:", JSON.stringify(datosIRPF));
-    contenedorResultado.innerHTML = `<pre style="background:#fef3c7;padding:1rem;white-space:pre-wrap;">DIAGNÓSTICO — datos IRPF encontrados para "${nombreEmpleado}":\n${JSON.stringify(datosIRPF, null, 2)}\n\nTotal de filas en DatosIRPF: ${CACHE_DATOS_IRPF.length}\nPrimera fila completa (para ver nombres de columna reales):\n${JSON.stringify(CACHE_DATOS_IRPF[0], null, 2)}</pre>`;
-    return;
-    // --- FIN DIAGNÓSTICO ---
+    const datosIRPF = CACHE_DATOS_IRPF.find((d) => d.Empleado === nombreEmpleado) || {};
 
     const resultado = calcularNominaCompleta({
       empleado,

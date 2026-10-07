@@ -240,10 +240,14 @@ function calcularMinimoPersonalYFamiliar(datosIRPF, fiscal, añoNacimientoEmplea
   // 3.000 € si el grado es ≥33% y <65%, 9.000 € si es ≥65%.
   let minDiscapacidad = 0;
   const discapacidad = normalizar(datosIRPF.DiscapacidadPropia);
-  if (discapacidad.includes("65")) {
-    minDiscapacidad = 9000;
+  // "33-65%" contiene literalmente "65", así que hay que comprobar primero
+  // el rango parcial (33-65) antes del de discapacidad total (>=65 solo).
+  if (discapacidad.includes("33") && discapacidad.includes("65")) {
+    minDiscapacidad = 3000; // 33% a 65%
+  } else if (discapacidad.includes("65") || discapacidad.includes("75")) {
+    minDiscapacidad = 9000; // >= 65%
   } else if (discapacidad.includes("33")) {
-    minDiscapacidad = 3000;
+    minDiscapacidad = 3000; // >= 33% (por si se guarda sin el límite superior)
   }
 
   return round2(minCon + minDes + minDiscapacidad);
