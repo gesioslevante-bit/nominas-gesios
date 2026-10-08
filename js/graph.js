@@ -1,5 +1,8 @@
 // ============================================================
 // ACCESO A SHAREPOINT VÍA MICROSOFT GRAPH API
+// Funciones genéricas de lectura/escritura sobre listas.
+// Cada módulo (irpf.js, incentivos.js, motor-calculo.js...)
+// las usará pasando el nombre de la lista y los campos.
 // ============================================================
 
 const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
@@ -20,16 +23,19 @@ async function graphFetch(ruta, opciones = {}) {
     throw new Error(`Graph API error ${respuesta.status}: ${detalle}`);
   }
 
+  // Las peticiones DELETE devuelven 204 sin cuerpo
   if (respuesta.status === 204) return null;
   return respuesta.json();
 }
 
+// Lee todos los elementos de una lista SharePoint, con sus campos (fields expandidos)
 async function leerListaCompleta(nombreLista) {
   const ruta = `/sites/${SHAREPOINT_SITE_ID}/lists/${nombreLista}/items?expand=fields&$top=999`;
   const datos = await graphFetch(ruta);
   return datos.value.map((item) => ({ id: item.id, ...item.fields }));
 }
 
+// Crea un nuevo elemento en una lista
 async function crearElementoLista(nombreLista, campos) {
   const ruta = `/sites/${SHAREPOINT_SITE_ID}/lists/${nombreLista}/items`;
   return graphFetch(ruta, {
@@ -38,6 +44,7 @@ async function crearElementoLista(nombreLista, campos) {
   });
 }
 
+// Actualiza un elemento existente (por su id de SharePoint)
 async function actualizarElementoLista(nombreLista, idElemento, campos) {
   const ruta = `/sites/${SHAREPOINT_SITE_ID}/lists/${nombreLista}/items/${idElemento}/fields`;
   return graphFetch(ruta, {
